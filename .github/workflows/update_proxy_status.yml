@@ -31,14 +31,17 @@ jobs:
         python update_proxy_status.py
 
     - name: Commit and push changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config --local user.name "github-actions[bot]"
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git add ip.txt
-        git add error.txt
-        if git diff --cached --exit-code; then
-          echo "No changes to commit"
-        else
-          git commit -m "Update proxy IP status"
-          git push
-        fi
+         git config --local user.name "github-actions[bot]"
+         git config --local user.email "github-actions[bot]@users.noreply.github.com"
+         git add ip.txt
+         git add error.txt
+         if git diff --quiet; then
+           echo "No changes to commit"
+         else
+           git commit -m "Update proxy IP status"
+           git pull --rebase
+           git push https://x-access-token:${GITHUB_TOKEN}@github.com/xuniversal/ipman.git HEAD:main
+         fi
