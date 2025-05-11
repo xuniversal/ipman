@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * 1'  # Every Monday at 00:00 UTC
   workflow_dispatch:
 
+permissions:
+  contents: write  # This is crucial for pushing changes
+
 jobs:
   update-proxies:
     runs-on: ubuntu-latest
@@ -13,7 +16,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0  # Get complete history for proper rebasing
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}  # Important for write access
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -39,19 +43,19 @@ jobs:
         # Configure git
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-        # Check for changes in tracked files
+        
+        # Check for changes
         git add -u
         if git diff --cached --quiet; then
           echo "No changes to commit"
           exit 0
         fi
-
+        
         # Commit changes
         git commit -m "Update proxy IP status [$(date +'%Y-%m-%d')]"
-
-        # Pull latest changes (merge strategy)
+        
+        # Pull changes
         git pull origin main
-
+        
         # Push changes
-        git push "https://x-access-token:$GITHUB_TOKEN@github.com/xuniversal/ipman.git" HEAD:main
+        git push origin HEAD:main
