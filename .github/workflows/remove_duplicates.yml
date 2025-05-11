@@ -1,9 +1,6 @@
 name: Remove duplicate IPs
 
 on:
-  push:
-    paths:
-      - 'new.txt'
   workflow_dispatch:
 
 jobs:
