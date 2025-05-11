@@ -1,0 +1,32 @@
+name: Remove duplicate IPs
+
+on:
+  push:
+    paths:
+      - 'ip_updated.txt'
+  workflow_dispatch:
+
+jobs:
+  remove-duplicates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Remove duplicate lines
+        run: |
+          # Backup original file
+          cp ip_updated.txt ip_updated_backup.txt
+          
+          # Sort and remove duplicates while preserving original order
+          awk '!seen[$0]++' ip_updated.txt > ip_updated_unique.txt
+          
+          # Replace original file with deduplicated version
+          mv ip_updated_unique.txt ip_updated.txt
+          
+          # Optional: Commit the changes
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ip_updated.txt
+          git diff --quiet && git diff --staged --quiet || git commit -m "Remove duplicate IPs"
+          git push
