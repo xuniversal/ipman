@@ -2,7 +2,7 @@ name: Update Proxy IP Status
 
 on:
   schedule:
-    - cron: '0 0 * * 1'  # Setiap hari Senin pukul 00:00 UTC
+    - cron: '0 0 * * 1'  # Every Monday at 00:00 UTC
   workflow_dispatch: 
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
     - name: Update proxy status
       env:
         IP_FILE: 'ip.txt'
-        API_URL: 'https://p01--boiling-frame--kw6dd7bjv2nr.code.run/check?ip={ip}&host=speed.cloudflare.com&port={port}&tls=true'
+        API_URL: 'https://id1.foolvpn.me/api/v1/check?ip={ip}:{port}'
       run: |
         python update_proxy_status.py
 
