@@ -1,4 +1,4 @@
-name: Compare Files Without Duplicates
+name: Compare Files - Remove Duplicates
 
 on:
   push:
@@ -15,43 +15,38 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Compare files with clean output
+    - name: Compare files and clean output
       run: |
+        # Membandingkan file dan menyaring duplikat
         {
           echo "🔍 Hasil Perbandingan ip.txt vs 2024.txt"
           echo "========================================"
           echo ""
           
           if cmp -s ip.txt 2024.txt; then
-            echo "✅ Kedua file identik"
+            echo "✅ Tidak ada perbedaan"
           else
-            # Menghitung perbedaan unik (tanpa duplikat)
-            differences=$(diff -u ip.txt 2024.txt | grep -E '^\+[^+]|^\-[^-]' | uniq)
-            
-            echo "❌ Ditemukan perbedaan:"
-            echo ""
-            echo "📋 Perubahan Unik:"
-            echo "------------------"
-            echo "$differences"
+            echo "⚠️ Ditemukan perbedaan unik:"
             echo ""
             
-            echo "📊 Statistik File:"
-            echo "ip.txt   : $(wc -l < ip.txt) baris"
-            echo "2024.txt : $(wc -l < 2024.txt) baris"
+            # Menggunakan awk untuk menghapus baris yang muncul di kedua file
+            diff ip.txt 2024.txt | awk '
+              /^</ { print "- " substr($0, 2) }
+              /^>/ { print "+ " substr($0, 2) }
+            ' | sort | uniq
           fi
         } > output.txt
 
-        # Preview hasil
-        echo "🔄 Hasil perbandingan tersimpan di output.txt:"
+        # Menampilkan hasil
         cat output.txt
 
-    - name: Commit and push result
-      if: always()
+    - name: Commit changes
+      if: success()
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         git add output.txt
-        git diff --cached --quiet || git commit -m "[Auto] Update hasil perbandingan"
+        git diff --quiet && git diff --cached --quiet || git commit -m "[Auto] Update clean comparison"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
