@@ -1,70 +1,36 @@
-name: Merge Files Workflow
+name: Compare Files
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  merge-files:
+  compare:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Compare files and generate output
+      run: |
+        # Membandingkan isi file dan menyimpan perbedaan ke output.txt
+        if cmp -s ip.txt 2024.txt; then
+          echo "Files are identical" > output.txt
+        else
+          echo "Files are different" > output.txt
+          echo "" >> output.txt
+          echo "Differences:" >> output.txt
+          diff ip.txt 2024.txt >> output.txt
+        fi
         
-      - name: Merge files
-        id: merge
-        run: |
-          # Inisialisasi file output
-          echo "Memulai proses penggabungan file..."
-          > output.txt
-          
-          # Verifikasi file input
-          echo "Memverifikasi file input..."
-          if [ ! -f ip.txt ]; then
-            echo "::error::File ip.txt tidak ditemukan"
-            exit 1
-          fi
-          
-          if [ ! -f 2024.txt ]; then
-            echo "::error::File 2024.txt tidak ditemukan"
-            exit 1
-          fi
-          
-          # Proses penggabungan
-          echo "Mencari baris yang sama di kedua file..."
-          grep -Fxf ip.txt 2024.txt >> output.txt || echo "Tidak ada baris yang identik"
-          
-          echo "Menambahkan baris unik dari ip.txt..."
-          grep -Fvxf 2024.txt ip.txt >> output.txt || echo "Tidak ada baris unik di ip.txt"
-          
-          echo "Menambahkan baris unik dari 2024.txt..."
-          grep -Fvxf ip.txt 2024.txt >> output.txt || echo "Tidak ada baris unik di 2024.txt"
-          
-          # Proses akhir
-          echo "Mengurutkan dan menghapus duplikat..."
-          sort -u output.txt -o output.txt
-          
-          # Hitung jumlah baris
-          line_count=$(wc -l < output.txt)
-          echo "Jumlah baris dalam output.txt: $line_count"
-          
-          # Simpan output untuk step berikutnya
-          echo "line_count=$line_count" >> $GITHUB_OUTPUT
-          
-          # Tampilkan hasil (maksimal 100 baris)
-          echo -e "\nPreview isi output.txt (100 baris pertama):"
-          head -n 100 output.txt
-          
-      - name: Upload result
-        uses: actions/upload-artifact@v4
-        with:
-          name: merged-output
-          path: output.txt
-          
-      - name: Show summary
-        run: |
-          echo "Proses penggabungan selesai"
-          echo "Jumlah baris yang dihasilkan: ${{ steps.merge.outputs.line_count }}"
-          echo "File output tersedia sebagai artifact"
+        # Menampilkan isi output untuk verifikasi
+        cat output.txt
+        
+        # Mengkomit perubahan jika ada
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add output.txt
+        git commit -m "Update comparison result" || echo "No changes to commit"
+        git push
