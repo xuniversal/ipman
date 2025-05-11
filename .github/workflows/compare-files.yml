@@ -1,9 +1,7 @@
 name: Compare Files - Remove Duplicates
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch: 
 
 jobs:
   compare-files:
