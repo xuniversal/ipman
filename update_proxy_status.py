@@ -12,14 +12,10 @@ def check_proxy(row, api_url_template):
         response.raise_for_status()
         data = response.json()
 
-        proxyip = data.get("proxyip", "")
-        if isinstance(proxyip, bool):
-            status = proxyip
-        elif isinstance(proxyip, str):
-            status = proxyip.strip().lower() == "true"
-        else:
-            status = False
-
+        # Assuming the new API returns a JSON with a 'status' or similar field
+        # You may need to adjust this based on the actual API response structure
+        status = data.get("status", False)  # Adjust this based on actual API response
+        
         if status:
             print(f"{ip}:{port} is ALIVE")
             return (row, None)
@@ -39,7 +35,7 @@ def main():
     input_file = os.getenv('IP_FILE', 'ip.txt')
     output_file = 'ip_updated.txt'
     error_file = 'error.txt'
-    api_url_template = os.getenv('API_URL', 'https://p01--boiling-frame--kw6dd7bjv2nr.code.run/check?ip={ip}&host=speed.cloudflare.com&port={port}&tls=true')
+    api_url_template = os.getenv('API_URL', 'https://id1.foolvpn.me/api/v1/check?ip={ip}:{port}')
 
     alive_proxies = []
     error_logs = []
