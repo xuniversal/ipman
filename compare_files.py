@@ -13,10 +13,15 @@ def compare_and_process_files(file1, file2, output_file):
     # Menyimpan hasil ke output file
     with open(output_file, 'w') as out:
         for line in diff:
-            # Menyaring perbedaan, menulis hanya baris yang berbeda
             if line.startswith('+ ') or line.startswith('- '):
-                out.write(line[2:] + "\n")  # Menulis hanya baris yang berbeda tanpa tanda "+" atau "-"
-    
+                out.write(line[2:] + "\n")  # Menulis hanya baris yang berbeda
+
+    # Menampilkan hasil diff untuk debug
+    print("Hasil perbandingan:")
+    for line in diff:
+        if line.startswith('+ ') or line.startswith('- '):
+            print(line)  # Menampilkan perbedaan di console
+
     print(f"Perbandingan selesai, hasil disalin ke {output_file}")
 
 # Tentukan nama file
