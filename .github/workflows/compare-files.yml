@@ -3,31 +3,27 @@ name: Compare Files and Process
 on:
   push:
     branches:
-      - main  # Gantilah dengan nama branch utama kamu, misalnya 'main' atau 'master'
+      - main  # Gantilah dengan nama branch utama kamu
 
 jobs:
   compare_files:
-    runs-on: ubuntu-latest  # Menggunakan runner Ubuntu
+    runs-on: ubuntu-latest
 
     steps:
     - name: Check out the repository
-      uses: actions/checkout@v2  # Checkout repository
+      uses: actions/checkout@v3  # Menggunakan versi terbaru v3
 
     - name: Set up Python environment
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3  # Menggunakan versi terbaru v3
       with:
         python-version: '3.x'
 
-    - name: Install dependencies
-      run: |
-        pip install difflib
-
     - name: Compare ip.txt and 2024.txt
       run: |
-        python3 compare_files.py  # Menjalankan script Python
+        python3 compare_files.py  # Menjalankan script Python untuk membandingkan file
 
     - name: Upload output file
-      uses: actions/upload-artifact@v4  # Menggunakan versi terbaru
+      uses: actions/upload-artifact@v4  # Menggunakan versi terbaru v4
       with:
         name: output-file
         path: output.txt
