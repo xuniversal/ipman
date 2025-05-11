@@ -3,9 +3,9 @@ import difflib
 def compare_and_process_files(file1, file2, output_file):
     # Membaca kedua file
     with open(file1, 'r') as f1:
-        lines1 = f1.readlines()
+        lines1 = [line.strip() for line in f1.readlines()]  # Menghapus whitespace tambahan
     with open(file2, 'r') as f2:
-        lines2 = f2.readlines()
+        lines2 = [line.strip() for line in f2.readlines()]  # Menghapus whitespace tambahan
 
     # Membandingkan file
     diff = difflib.unified_diff(lines1, lines2, lineterm='', fromfile=file1, tofile=file2)
@@ -15,12 +15,6 @@ def compare_and_process_files(file1, file2, output_file):
         for line in diff:
             if line.startswith('+ ') or line.startswith('- '):
                 out.write(line[2:] + "\n")  # Menulis hanya baris yang berbeda
-
-    # Menampilkan hasil diff untuk debug
-    print("Hasil perbandingan:")
-    for line in diff:
-        if line.startswith('+ ') or line.startswith('- '):
-            print(line)  # Menampilkan perbedaan di console
 
     print(f"Perbandingan selesai, hasil disalin ke {output_file}")
 
