@@ -3,34 +3,48 @@ name: Compare Files
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:  # Memungkinkan trigger manual dari GitHub UI
 
 jobs:
-  compare:
+  compare-files:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write  # Memberikan izin untuk push ke repo
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
-    - name: Compare files and generate output
+      with:
+        fetch-depth: 0  # Diperlukan untuk git history
+
+    - name: Compare ip.txt and 2024.txt
       run: |
-        # Membandingkan isi file dan menyimpan perbedaan ke output.txt
+        # Membuat output.txt dengan hasil perbandingan
         if cmp -s ip.txt 2024.txt; then
-          echo "Files are identical" > output.txt
+          echo "✅ Files are identical" > output.txt
         else
-          echo "Files are different" > output.txt
-          echo "" >> output.txt
-          echo "Differences:" >> output.txt
-          diff ip.txt 2024.txt >> output.txt
+          {
+            echo "❌ Files are different"
+            echo ""
+            echo "📊 Perbedaan:"
+            echo "==================================="
+            diff -u ip.txt 2024.txt || true  # `|| true` agar tidak error jika ada perbedaan
+            echo ""
+            echo "📝 Statistik:"
+            echo "ip.txt    : $(wc -l < ip.txt) lines"
+            echo "2024.txt  : $(wc -l < 2024.txt) lines"
+          } > output.txt
         fi
-        
-        # Menampilkan isi output untuk verifikasi
+
+        # Menampilkan hasil di log
         cat output.txt
-        
-        # Mengkomit perubahan jika ada
+
+    - name: Commit and push changes (if any)
+      run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         git add output.txt
-        git commit -m "Update comparison result" || echo "No changes to commit"
+        git diff --quiet && git diff --cached --quiet || git commit -m "[Automated] Update file comparison result"
         git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token otomatis dari GitHub
