@@ -1,10 +1,17 @@
 import requests
-import csv
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-def check_proxy(ip_port, api_url_template):
-    ip, port = ip_port.split(':')
+def check_proxy(proxy_data, api_url_template):
+    parts = proxy_data.split(',')
+    if len(parts) < 2:
+        return (proxy_data, False)
+    
+    ip = parts[0].strip()
+    port = parts[1].strip()
+    country = parts[2].strip() if len(parts) > 2 else 'N/A'
+    provider = parts[3].strip() if len(parts) > 3 else 'N/A'
+    
     api_url = api_url_template.format(ip=ip, port=port)
     try:
         response = requests.get(api_url, timeout=60)
@@ -13,22 +20,20 @@ def check_proxy(ip_port, api_url_template):
 
         status = data.get("proxyip", False)
         delay = data.get('delay', 'N/A')
-        country = data.get('country', 'N/A')
-        city = data.get('city', 'N/A')
         
         if status:
-            print(f"{ip}:{port} is ALIVE | Delay: {delay}ms | Location: {country}-{city}")
-            return (ip_port, True)
+            print(f"{ip}:{port} is ALIVE | Delay: {delay}ms | Country: {country} | Provider: {provider}")
+            return (f"{ip},{port},{country},{provider}", True)
         else:
             print(f"{ip}:{port} is DEAD")
-            return (ip_port, False)
+            return (f"{ip},{port},{country},{provider}", False)
             
     except requests.exceptions.RequestException as e:
         print(f"Error checking {ip}:{port}: {e}")
-        return (ip_port, False)
+        return (f"{ip},{port},{country},{provider}", False)
     except ValueError as ve:
         print(f"Error parsing JSON for {ip}:{port}: {ve}")
-        return (ip_port, False)
+        return (f"{ip},{port},{country},{provider}", False)
 
 def main():
     input_file = os.getenv('INPUT_FILE', 'rawproxy.txt')
@@ -47,7 +52,7 @@ def main():
         return
 
     with ThreadPoolExecutor(max_workers=50) as executor:
-        futures = [executor.submit(check_proxy, proxy, api_url_template) for proxy in proxies if ':' in proxy]
+        futures = [executor.submit(check_proxy, proxy, api_url_template) for proxy in proxies]
 
         for future in as_completed(futures):
             proxy, is_alive = future.result()
@@ -56,7 +61,7 @@ def main():
             else:
                 dead_proxies.append(proxy)
 
-    # Write alive proxies
+    # Write alive proxies (maintaining original format)
     try:
         with open(alive_file, "w") as f:
             f.write("\n".join(alive_proxies) + "\n")
@@ -64,7 +69,7 @@ def main():
     except Exception as e:
         print(f"Error writing to {alive_file}: {e}")
 
-    # Write dead proxies
+    # Write dead proxies (maintaining original format)
     try:
         with open(dead_file, "w") as f:
             f.write("\n".join(dead_proxies) + "\n")
