@@ -1,10 +1,10 @@
-❌ Files are different
+🔍 Hasil Perbandingan ip.txt vs 2024.txt
+========================================
 
-📊 Perbedaan:
-===================================
---- ip.txt	2025-05-11 01:32:11.843983984 +0000
-+++ 2024.txt	2025-05-11 01:32:11.843983984 +0000
-@@ -1,13226 +1,13484 @@
+❌ Ditemukan perbedaan:
+
+📋 Perubahan Unik:
+------------------
 -146.235.18.248,45137,SG,Oracle Cloud
 -3.1.94.232,443,SG,Amazoncom
 -129.150.58.86,57621,SG,Oracle Cloud
@@ -26716,6 +26716,6 @@
 +37.128.206.171,2053,LV,Sia Veesp
 +46.32.187.245,443,LV,Sia Veesp
 
-📝 Statistik:
-ip.txt    : 13226 lines
-2024.txt  : 13484 lines
+📊 Statistik File:
+ip.txt   : 13226 baris
+2024.txt : 13484 baris
