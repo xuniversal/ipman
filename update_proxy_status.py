@@ -12,12 +12,11 @@ def check_proxy(row, api_url_template):
         response.raise_for_status()
         data = response.json()
 
-        # Assuming the new API returns a JSON with a 'status' or similar field
-        # You may need to adjust this based on the actual API response structure
-        status = data.get("status", False)  # Adjust this based on actual API response
+        # Check if proxyip is True in the response
+        status = data.get("proxyip", False)
         
         if status:
-            print(f"{ip}:{port} is ALIVE")
+            print(f"{ip}:{port} is ALIVE | Delay: {data.get('delay', 'N/A')}ms | Location: {data.get('country', 'N/A')}-{data.get('city', 'N/A')}")
             return (row, None)
         else:
             print(f"{ip}:{port} is DEAD")
@@ -45,7 +44,7 @@ def main():
             reader = csv.reader(f)
             rows = list(reader)
     except FileNotFoundError:
-        print(f"File {input_file} tidak ditemukan.")
+        print(f"File {input_file} not found.")
         return
 
     with ThreadPoolExecutor(max_workers=50) as executor:
@@ -63,7 +62,7 @@ def main():
             writer = csv.writer(f)
             writer.writerows(alive_proxies)
     except Exception as e:
-        print(f"Error menulis ke {output_file}: {e}")
+        print(f"Error writing to {output_file}: {e}")
         return
 
     if error_logs:
@@ -71,16 +70,16 @@ def main():
             with open(error_file, "w") as f:
                 for error in error_logs:
                     f.write(error + "\n")
-            print(f"Beberapa error telah dicatat di {error_file}.")
+            print(f"Some errors were logged in {error_file}.")
         except Exception as e:
-            print(f"Error menulis ke {error_file}: {e}")
+            print(f"Error writing to {error_file}: {e}")
             return
 
     try:
         shutil.move(output_file, input_file)
-        print(f"{input_file} telah diperbarui dengan proxy yang ALIVE.")
+        print(f"{input_file} has been updated with ALIVE proxies.")
     except Exception as e:
-        print(f"Error menggantikan {input_file}: {e}")
+        print(f"Error replacing {input_file}: {e}")
 
 if __name__ == "__main__":
     main()
