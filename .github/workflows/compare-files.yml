@@ -1,29 +1,42 @@
-name: Compare Files and Process
+name: Compare and Merge Files
 
 on:
   push:
-    branches:
-      - main  # Gantilah dengan nama branch utama kamu
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  compare_files:
+  merge_files:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Check out the repository
-      uses: actions/checkout@v3  # Menggunakan versi terbaru v3
-
-    - name: Set up Python environment
-      uses: actions/setup-python@v3  # Menggunakan versi terbaru v3
-      with:
-        python-version: '3.x'
-
-    - name: Compare ip.txt and 2024.txt
-      run: |
-        python3 compare_files.py  # Menjalankan script Python untuk membandingkan file
-
-    - name: Upload output file
-      uses: actions/upload-artifact@v4  # Menggunakan versi terbaru v4
-      with:
-        name: output-file
-        path: output.txt  # Pastikan path sesuai dengan lokasi file output.txt di root
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Compare and merge files
+        run: |
+          # Buat file output.txt baru
+          touch output.txt
+          
+          # Bandingkan dan gabungkan konten
+          # Langkah 1: Tambahkan baris yang sama dari kedua file
+          grep -Fxf ip.txt 2024.txt >> output.txt
+          
+          # Langkah 2: Tambahkan baris unik dari ip.txt
+          grep -Fvxf 2024.txt ip.txt >> output.txt
+          
+          # Langkah 3: Tambahkan baris unik dari 2024.txt
+          grep -Fvxf ip.txt 2024.txt >> output.txt
+          
+          # (Opsional) Urutkan dan hapus duplikat
+          sort -u output.txt -o output.txt
+          
+          # Tampilkan hasil untuk debugging
+          echo "Hasil output.txt:"
+          cat output.txt
+          
+      - name: Upload output file
+        uses: actions/upload-artifact@v3
+        with:
+          name: merged-output
+          path: output.txt
