@@ -20,4 +20,4 @@ def compare_and_process_files(file1, file2, output_file):
     print(f"Perbandingan selesai, hasil disalin ke {output_file}")
 
 # Tentukan nama file
-compare_and_process_files('ip.txt', '2024.txt', 'output.txt')
+compare_and_process_files('ip.txt', '2024.txt', 'output.txt')  # Output berada di direktori root
