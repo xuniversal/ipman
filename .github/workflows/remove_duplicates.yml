@@ -3,7 +3,7 @@ name: Remove duplicate IPs
 on:
   push:
     paths:
-      - 'ip_updated.txt'
+      - 'new.txt'
   workflow_dispatch:
 
 jobs:
@@ -20,8 +20,8 @@ jobs:
 
       - name: Remove duplicate lines
         run: |
-          cp ip_updated.txt ip_updated_backup.txt
-          awk '!seen[$0]++' ip_updated.txt > ip_updated_unique.txt
+          cp new.txt ip_updated_backup.txt
+          awk '!seen[$0]++' new.txt > ip_updated_unique.txt
           mv ip_updated_unique.txt ip_updated.txt
 
       - name: Commit and push changes
