@@ -1,0 +1,34 @@
+name: Compare Files and Process
+
+on:
+  push:
+    branches:
+      - main  # Gantilah dengan nama branch utama kamu, misalnya 'main' atau 'master'
+  # Trigger lain bisa ditambahkan jika diperlukan seperti pull_request, schedule, dsb.
+
+jobs:
+  compare_files:
+    runs-on: ubuntu-latest  # Menggunakan runner Ubuntu
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2  # Checkout repository agar bisa diakses oleh action selanjutnya
+
+    - name: Set up Python environment
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'  # Menggunakan versi Python 3.x
+
+    - name: Install dependencies
+      run: |
+        pip install difflib  # Install library tambahan jika diperlukan
+
+    - name: Compare ip.txt and 2024.txt
+      run: |
+        python3 compare_files.py  # Menjalankan script Python yang akan membandingkan file
+
+    - name: Upload output file
+      uses: actions/upload-artifact@v2
+      with:
+        name: output-file
+        path: output.txt  # Mengupload hasil output ke GitHub Actions Artifacts
