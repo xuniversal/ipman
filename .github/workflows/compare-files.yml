@@ -26,4 +26,4 @@ jobs:
       uses: actions/upload-artifact@v4  # Menggunakan versi terbaru v4
       with:
         name: output-file
-        path: output.txt
+        path: output.txt  # Pastikan path sesuai dengan lokasi file output.txt di root
