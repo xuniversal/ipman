@@ -1,10 +1,10 @@
-name: Compare Files - Remove Duplicates
+name: Merge Files - Remove Duplicates
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
-  compare-files:
+  merge-files:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -13,38 +13,22 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Compare files and clean output
+    - name: Gabungkan dan hapus duplikat
       run: |
-        # Membandingkan file dan menyaring duplikat
-        {
-          echo "🔍 Hasil Perbandingan rawproxy.txt vs ProxyIsp.txt"
-          echo "=============================================="
-          echo ""
-          
-          if cmp -s rawproxy.txt ProxyIsp.txt; then
-            echo "✅ Tidak ada perbedaan"
-          else
-            echo "⚠️ Ditemukan perbedaan unik:"
-            echo ""
-            
-            # Menampilkan perbedaan yang unik antara dua file
-            diff rawproxy.txt ProxyIsp.txt | awk '
-              /^</ { print "- " substr($0, 2) }
-              /^>/ { print "+ " substr($0, 2) }
-            ' | sort | uniq
-          fi
-        } > output.txt
+        # Gabungkan dua file dan hapus baris duplikat
+        sort -u rawproxy.txt ProxyIsp.txt > output.txt
 
-        # Menampilkan hasil
+        echo "✅ Hasil gabungan tanpa duplikat:"
+        echo "--------------------------------"
         cat output.txt
 
-    - name: Commit changes
+    - name: Commit hasil
       if: success()
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         git add output.txt
-        git diff --quiet && git diff --cached --quiet || git commit -m "[Auto] Update clean comparison"
+        git diff --quiet && git diff --cached --quiet || git commit -m "[Auto] Gabungkan file dan hapus duplikat"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
