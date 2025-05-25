@@ -1,4 +1,4 @@
-name: Merge Files - Remove Duplicatess
+name: Merge Files - Remove Duplicate IP:Port
 
 on:
   workflow_dispatch:
@@ -13,13 +13,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Gabungkan dan hapus duplikat
+    - name: Gabungkan dan hapus duplikat IP:Port
       run: |
-        # Gabungkan dua file dan hapus baris duplikat
-        sort -u rawproxy.txt ProxyIsp.txt > output.txt
+        # Gabungkan dan simpan hanya satu baris untuk tiap IP:Port
+        cat rawproxy.txt ProxyIsp.txt | awk -F',' '!seen[$1 FS $2]++' > output.txt
 
-        echo "✅ Hasil gabungan tanpa duplikat:"
-        echo "--------------------------------"
+        echo "✅ Hasil gabungan tanpa duplikat IP:Port:"
+        echo "----------------------------------------"
         cat output.txt
 
     - name: Commit hasil
@@ -28,7 +28,7 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         git add output.txt
-        git diff --quiet && git diff --cached --quiet || git commit -m "[Auto] Gabungkan file dan hapus duplikat"
+        git diff --quiet && git diff --cached --quiet || git commit -m "[Auto] Gabungkan file dan hapus duplikat IP:Port"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
