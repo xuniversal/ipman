@@ -17,18 +17,18 @@ jobs:
       run: |
         # Membandingkan file dan menyaring duplikat
         {
-          echo "🔍 Hasil Perbandingan ip.txt vs 2024.txt"
-          echo "========================================"
+          echo "🔍 Hasil Perbandingan rawproxy.txt vs ProxyIsp.txt"
+          echo "=============================================="
           echo ""
           
-          if cmp -s ip.txt 2024.txt; then
+          if cmp -s rawproxy.txt ProxyIsp.txt; then
             echo "✅ Tidak ada perbedaan"
           else
             echo "⚠️ Ditemukan perbedaan unik:"
             echo ""
             
-            # Menggunakan awk untuk menghapus baris yang muncul di kedua file
-            diff ip.txt 2024.txt | awk '
+            # Menampilkan perbedaan yang unik antara dua file
+            diff rawproxy.txt ProxyIsp.txt | awk '
               /^</ { print "- " substr($0, 2) }
               /^>/ { print "+ " substr($0, 2) }
             ' | sort | uniq
