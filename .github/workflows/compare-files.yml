@@ -1,4 +1,4 @@
-name: Merge Files - Remove Duplicates
+name: Merge Files - Remove Duplicatess
 
 on:
   workflow_dispatch:
