@@ -16,7 +16,7 @@ jobs:
     - name: Gabungkan dan hapus duplikat IP:Port
       run: |
         # Gabungkan dan simpan hanya satu baris untuk tiap IP:Port
-        cat rawproxy.txt ProxyIsp.txt | awk -F',' '!seen[$1 FS $2]++' > output.txt
+        cat rawproxy_1.txt rawproxy_2.txt | awk -F',' '!seen[$1 FS $2]++' > output.txt
 
         echo "✅ Hasil gabungan tanpa duplikat IP:Port:"
         echo "----------------------------------------"
